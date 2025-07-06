@@ -27,10 +27,7 @@ interface AuthResponse {
 
 interface GetUserApiResponse {
     success: boolean;
-    message: string;
-    data: {
-        user: User;
-    };
+    data: User; // User data is directly in data, not data.user
 }
 
 export const authService = {
@@ -80,18 +77,14 @@ export const authService = {
 
     async getCurrentUser(): Promise<User> {
         try {
-            console.log('AuthService: Getting current user');
             const response = await api.get<GetUserApiResponse>('/auth/me');
-            console.log('AuthService: getCurrentUser response', response.data);
-            
+                        
             if (response.data.success !== undefined) {
-                if (!response.data.success) {
-                    throw new Error(response.data.message || 'Failed to get user data');
+                if (!response.data.success || !response.data.data) {
+                    throw new Error('Failed to get user data');
                 }
-                console.log('AuthService: Returning user from new format');
-                return response.data.data.user;
+                return response.data.data;
             } else {
-                console.log('AuthService: Returning user from legacy format');
                 return response.data as any;
             }
         } catch (error) {
