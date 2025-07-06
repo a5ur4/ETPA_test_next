@@ -8,7 +8,8 @@ export const useRequireAuth = (redirectTo: string = '/login') => {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push(redirectTo);
+            console.log('useRequireAuth: User not authenticated, redirecting to login');
+            router.replace(redirectTo);
         }
     }, [isAuthenticated, isLoading, router, redirectTo]);
 
@@ -21,7 +22,8 @@ export const useRedirectIfAuthenticated = (redirectTo: string = '/dashboard') =>
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
-            router.push(redirectTo);
+            console.log('useRedirectIfAuthenticated: User authenticated, redirecting to dashboard');
+            router.replace(redirectTo);
         }
     }, [isAuthenticated, isLoading, router, redirectTo]);
 

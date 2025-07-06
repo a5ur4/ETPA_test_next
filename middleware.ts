@@ -16,11 +16,8 @@ export function middleware(request: NextRequest) {
     );
 
     if (isProtectedRoute && !token) {
+        console.log('Middleware: Redirecting to login - no token for protected route');
         return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    if (isAuthRoute && token) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
     return NextResponse.next();

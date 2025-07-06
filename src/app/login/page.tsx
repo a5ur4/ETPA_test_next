@@ -4,7 +4,8 @@ import { loginSchema, LoginSchema } from '@/schemas/login.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useRedirectIfAuthenticated } from '@/hooks/useAuth';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { GoImage } from 'react-icons/go';
@@ -13,27 +14,25 @@ import logoEPTA from '@/assets/logo_EPTA.png';
 
 const LoginPage = () => {
     const router = useRouter();
-    const { login: authLogin, isAuthenticated, isLoading: authLoading } = useAuth();
+    const { login: authLogin } = useAuth();
+    const { isAuthenticated, isLoading: authLoading } = useRedirectIfAuthenticated();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema)
     });
 
-    useEffect(() => {
-        if (isAuthenticated && !authLoading) {
-            router.push('/dashboard');
-        }
-    }, [isAuthenticated, authLoading, router]);
-
     const handleLogin = async (data: LoginSchema) => {
         try {
+            console.log('Login page: Login attempt started');
             setError(null);
             setIsLoading(true);
+            
             await authLogin(data.email, data.password);
-            router.push('/dashboard');
+            console.log('Login page: Login successful');
+            
         } catch (error: any) {
-            console.error('Login failed:', error);
+            console.error('Login page: Login failed:', error);
             setError(error.message || 'Login failed. Please check your credentials and try again.');
         } finally {
             setIsLoading(false);
@@ -46,6 +45,17 @@ const LoginPage = () => {
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
                     <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </main>
+        );
+    }
+
+    if (isAuthenticated) {
+        return (
+            <main className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
                 </div>
             </main>
         );
