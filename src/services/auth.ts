@@ -3,7 +3,7 @@ import { setCookie, destroyCookie } from 'nookies';
 import { LoginSchema } from '@/schemas/login.schema';
 import { handleApiError } from '@/utils/errorHandler';
 
-interface User {
+export interface User {
     id: string;
     name: string;
     email: string;
@@ -27,7 +27,7 @@ interface AuthResponse {
 
 interface GetUserApiResponse {
     success: boolean;
-    data: User; // User data is directly in data, not data.user
+    data: User;
 }
 
 export const authService = {
@@ -78,7 +78,7 @@ export const authService = {
     async getCurrentUser(): Promise<User> {
         try {
             const response = await api.get<GetUserApiResponse>('/auth/me');
-                        
+
             if (response.data.success !== undefined) {
                 if (!response.data.success || !response.data.data) {
                     throw new Error('Failed to get user data');

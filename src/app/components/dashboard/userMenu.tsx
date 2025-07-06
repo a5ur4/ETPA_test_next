@@ -1,15 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
-import { FiLogOut, FiRefreshCw } from "react-icons/fi";
+import { FiLogOut } from "react-icons/fi";
 import { useAuth } from '@/contexts/AuthContext';
-import { authService } from '@/services/auth';
 
 export const UserMenu = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [isRefreshing, setIsRefreshing] = useState(false);
     const { user, logout, isLoading } = useAuth();
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -28,30 +26,6 @@ export const UserMenu = () => {
             return 'Data inválida';
         }
     };
-
-    const handleRefreshUser = async () => {
-        try {
-            setIsRefreshing(true);
-            console.log('UserMenu: Refreshing user data...');
-            const updatedUser = await authService.getCurrentUser();
-            console.log('UserMenu: User data refreshed:', updatedUser);
-        } catch (error) {
-            console.error('UserMenu: Failed to refresh user data:', error);
-        } finally {
-            setIsRefreshing(false);
-        }
-    };
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     const handleLogout = async () => {
         try {
@@ -124,18 +98,6 @@ export const UserMenu = () => {
                                     </div>
                                 </div>
                             )}
-                        </div>
-
-                        {/* Menu Items */}
-                        <div className="py-2">
-                            <button 
-                                onClick={handleRefreshUser}
-                                disabled={isRefreshing}
-                                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-3 disabled:opacity-50"
-                            >
-                                <FiRefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                <span>Atualizar dados</span>
-                            </button>
                         </div>
 
                         {/* Logout Section */}
