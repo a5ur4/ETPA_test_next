@@ -9,7 +9,7 @@ import { vehicleSchema } from '@/schemas/vehicle.schema';
 interface VehicleFormProps {
     onSuccess?: () => void;
     onCancel?: () => void;
-    mode?: 'create' | 'edit' | 'view';
+    mode?: 'create' | 'edit' | 'view' | 'delete' | 'patchStatus';
     initialData?: Vehicle;
 }
 
@@ -19,8 +19,7 @@ export const VehicleForm = ({
     mode = 'create',
     initialData 
 }: VehicleFormProps) => {
-    const { addVehicle, updateVehicle, isLoading, error, clearError } = useVehicle();
-    
+    const { addVehicle, updateVehicle, deleteVehicle, patchVehicleStatus, isLoading, error, clearError } = useVehicle();
     const {
         register,
         handleSubmit,
@@ -43,8 +42,9 @@ export const VehicleForm = ({
         }
     });
 
-    const isReadOnly = mode === 'view';
     const isEditing = mode === 'edit';
+    const isDeleting = mode === 'delete';
+    const isPatchingStatus = mode === 'patchStatus';
 
     const onSubmit = async (data: CreateVehicleData) => {
         clearError();
@@ -53,11 +53,36 @@ export const VehicleForm = ({
             if (isEditing && initialData) {
                 await updateVehicle({ ...initialData, ...data });
             } else {
+                console.log(data);
                 await addVehicle(data);
             }
             onSuccess?.();
         } catch (error) {
             console.error('Failed to save vehicle:', error);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!initialData?.id) return;
+        
+        clearError();
+        try {
+            await deleteVehicle(initialData.id);
+            onSuccess?.();
+        } catch (error) {
+            console.error('Failed to delete vehicle:', error);
+        }
+    };
+
+    const handlePatchStatus = async (newStatus: 'ATIVO' | 'INATIVO') => {
+        if (!initialData?.id) return;
+        
+        clearError();
+        try {
+            await patchVehicleStatus(initialData.id, newStatus);
+            onSuccess?.();
+        } catch (error) {
+            console.error('Failed to update vehicle status:', error);
         }
     };
 
@@ -67,24 +92,82 @@ export const VehicleForm = ({
         onCancel?.();
     };
 
-    const getTitle = () => {
-        switch (mode) {
-            case 'create': return 'Cadastrar Veículo';
-            case 'edit': return 'Editar Veículo';
-            case 'view': return 'Detalhes do Veículo';
-            default: return 'Veículo';
-        }
-    };
-
     const getSubmitButtonText = () => {
         if (isSubmitting || isLoading) {
+            if (isDeleting) return 'Excluindo...';
             return isEditing ? 'Atualizando...' : 'Cadastrando...';
         }
+        if (isDeleting) return 'Confirmar Exclusão';
         return isEditing ? 'Atualizar Veículo' : 'Cadastrar Veículo';
     };
 
+    const isFormReadOnly = mode === 'view' || mode === 'delete' || mode === 'patchStatus';
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-4">
+            {/* Delete Warning */}
+            {isDeleting && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center mb-2">
+                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-red-600 text-sm font-bold">!</span>
+                        </div>
+                        <h3 className="text-red-800 font-semibold">Confirmar Exclusão</h3>
+                    </div>
+                    <p className="text-red-700 text-sm">
+                        Tem certeza que deseja excluir este veículo? Esta ação não pode ser desfeita.
+                    </p>
+                </div>
+            )}
+
+            {/* Patch Status Info */}
+            {isPatchingStatus && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center mb-2">
+                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-blue-600 text-sm font-bold">i</span>
+                        </div>
+                        <h3 className="text-blue-800 font-semibold">Alterar Status do Veículo</h3>
+                    </div>
+                    <p className="text-blue-700 text-sm mb-4">
+                        Status atual: <span className="font-semibold">{initialData?.status || 'ATIVO'}</span>
+                    </p>
+                    <div className="flex gap-3">
+                        <button
+                            type="button"
+                            onClick={() => handlePatchStatus('ATIVO')}
+                            disabled={isLoading || initialData?.status === 'ATIVO'}
+                            className="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed text-white font-bold rounded-lg focus:outline-none transition-colors"
+                        >
+                            {isLoading && initialData?.status !== 'ATIVO' && (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 inline-block"></div>
+                            )}
+                            Ativar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handlePatchStatus('INATIVO')}
+                            disabled={isLoading || initialData?.status === 'INATIVO'}
+                            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-lg focus:outline-none transition-colors"
+                        >
+                            {isLoading && initialData?.status !== 'INATIVO' && (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 inline-block"></div>
+                            )}
+                            Desativar
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-bold rounded-lg focus:outline-none transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <form onSubmit={isDeleting ? undefined : handleSubmit(onSubmit)} className="space-y-4">
             {/* Error Display */}
             {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -101,11 +184,11 @@ export const VehicleForm = ({
                     type="text"
                     id="name"
                     {...register('name')}
-                    disabled={isReadOnly}
+                    disabled={isFormReadOnly}
                     className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
                         errors.name ? 'border-red-500' : 'border-gray-300'
-                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                    placeholder={isReadOnly ? '' : 'Ex: Honda Civic'}
+                    } ${isFormReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={isFormReadOnly ? '' : 'Ex: Honda Civic'}
                 />
                 {errors.name && (
                     <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
@@ -121,11 +204,11 @@ export const VehicleForm = ({
                     type="text"
                     id="plateNumber"
                     {...register('plateNumber')}
-                    disabled={isReadOnly}
+                    disabled={isFormReadOnly}
                     className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
                         errors.plateNumber ? 'border-red-500' : 'border-gray-300'
-                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                    placeholder={isReadOnly ? '' : 'Ex: ABC1234'}
+                    } ${isFormReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={isFormReadOnly ? '' : 'Ex: ABC1234'}
                     maxLength={7}
                 />
                 {errors.plateNumber && (
@@ -141,10 +224,10 @@ export const VehicleForm = ({
                 <select
                     id="type"
                     {...register('type')}
-                    disabled={isReadOnly}
+                    disabled={isFormReadOnly}
                     className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
                         errors.type ? 'border-red-500' : 'border-gray-300'
-                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    } ${isFormReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
                 >
                     <option value={VehicleType.CARRO}>Carro</option>
                     <option value={VehicleType.MOTO}>Moto</option>
@@ -166,10 +249,10 @@ export const VehicleForm = ({
                     type="number"
                     id="year"
                     {...register('year', { valueAsNumber: true })}
-                    disabled={isReadOnly}
+                    disabled={isFormReadOnly}
                     className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
                         errors.year ? 'border-red-500' : 'border-gray-300'
-                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    } ${isFormReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
                     min={1886}
                     max={new Date().getFullYear()}
                 />
@@ -187,11 +270,11 @@ export const VehicleForm = ({
                     type="text"
                     id="color"
                     {...register('color')}
-                    disabled={isReadOnly}
+                    disabled={isFormReadOnly}
                     className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
                         errors.color ? 'border-red-500' : 'border-gray-300'
-                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
-                    placeholder={isReadOnly ? '' : 'Ex: Branco'}
+                    } ${isFormReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={isFormReadOnly ? '' : 'Ex: Branco'}
                 />
                 {errors.color && (
                     <p className="text-red-500 text-xs mt-1">{errors.color.message}</p>
@@ -199,7 +282,7 @@ export const VehicleForm = ({
             </div>
 
             {/* Form Actions */}
-            {!isReadOnly && (
+            {!isFormReadOnly && (
                 <div className="flex justify-center mb-2">
                     <button
                         type="submit"
@@ -214,8 +297,33 @@ export const VehicleForm = ({
                 </div>
             )}
 
+            {/* Delete Actions */}
+            {isDeleting && (
+                <div className="flex gap-3 justify-center mb-2">
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                        className="flex-1 mt-2 h-11 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl focus:outline-none transition-colors shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        disabled={isLoading}
+                        className="flex-1 mt-2 h-11 bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed text-white font-bold rounded-xl focus:outline-none transition-colors shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
+                    >
+                        {isLoading && (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        )}
+                        <span>{getSubmitButtonText()}</span>
+                    </button>
+                </div>
+            )}
+
             {/* View Mode Close Button */}
-            {isReadOnly && (
+            {mode === 'view' && (
                 <div className="flex justify-end pt-4">
                     <button
                         type="button"
@@ -227,5 +335,6 @@ export const VehicleForm = ({
                 </div>
             )}
         </form>
+        </div>
     );
 };

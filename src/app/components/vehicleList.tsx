@@ -5,10 +5,10 @@ import { Vehicle } from '@/types/vehicle';
 import { Modal } from './modal';
 import { VehicleForm } from './vehicleForm';
 import { VehicleDetails } from './vehicleDetails';
-import { FaEye } from 'react-icons/fa';
 import { FaBoxArchive, FaGears, FaRegTrashCan } from 'react-icons/fa6';
 import { RxReader } from 'react-icons/rx';
 import { MdOutlineModeEdit } from 'react-icons/md';
+import { FaPowerOff } from 'react-icons/fa';
 
 interface VehicleListProps {
     vehicles: Vehicle[];
@@ -17,7 +17,7 @@ interface VehicleListProps {
 
 export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-    const [modalMode, setModalMode] = useState<'view' | 'edit' | null>(null);
+    const [modalMode, setModalMode] = useState<'view' | 'edit' | 'delete' | 'patchStatus' | null>(null);
 
     const handleViewVehicle = (vehicle: Vehicle) => {
         setSelectedVehicle(vehicle);
@@ -29,9 +29,14 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
         setModalMode('edit');
     };
 
+    const handlePatchStatusVehicle = (vehicle: Vehicle) => {
+        setSelectedVehicle(vehicle);
+        setModalMode('patchStatus');
+    };
+
     const handleDeleteVehicle = (vehicle: Vehicle) => {
-        // TODO: Implementar modal de confirmação de exclusão
-        console.log('Delete vehicle:', vehicle.id);
+        setSelectedVehicle(vehicle);
+        setModalMode('delete');
     };
 
     const handleCloseModal = () => {
@@ -192,11 +197,20 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
                                 
                                 {/* Status */}
                                 <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
-                                    <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                        <span className="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
-                                        Ativo
+                                    <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                                        vehicle.status === 'ATIVO' 
+                                            ? 'bg-green-100 text-green-800' 
+                                            : 'bg-orange-100 text-orange-800'
+                                    }`}>
+                                        <span className={`w-2 h-2 rounded-full mr-1 ${
+                                            vehicle.status === 'ATIVO' 
+                                                ? 'bg-green-400' 
+                                                : 'bg-orange-400'
+                                        }`}></span>
+                                        {vehicle.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
                                     </span>
                                 </td>
+                                
                                 
                                 {/* Ações */}
                                 <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-center">
@@ -214,6 +228,13 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
                                             title="Visualizar"
                                         >
                                             <FaBoxArchive className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handlePatchStatusVehicle(vehicle)}
+                                            className="p-2 text-black-600 bg-white shadow-sm hover:border-blue-300 rounded-lg transition-colors border border-gray-200"
+                                            title="Alterar Status"
+                                        >
+                                            <FaPowerOff className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => handleDeleteVehicle(vehicle)}
@@ -259,6 +280,44 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
                 {selectedVehicle && (
                     <VehicleForm
                         mode="edit"
+                        initialData={selectedVehicle}
+                        onSuccess={handleSuccess}
+                        onCancel={handleCloseModal}
+                    />
+                )}
+            </Modal>
+
+            {/* Patch Status Modal */}
+            <Modal
+                isOpen={modalMode === 'patchStatus'}
+                onClose={handleCloseModal}
+                icon={<FaGears className="color-gray-800 h-12 w-12 mt-[-4px]" />}
+                title="Alterar Status do Veículo"
+                size="lg"
+                transparent={true}
+            >
+                {selectedVehicle && (
+                    <VehicleForm
+                        mode="patchStatus"
+                        initialData={selectedVehicle}
+                        onSuccess={handleSuccess}
+                        onCancel={handleCloseModal}
+                    />
+                )}
+            </Modal>
+
+            {/* Delete Modal */}
+            <Modal
+                isOpen={modalMode === 'delete'}
+                onClose={handleCloseModal}
+                icon={<FaRegTrashCan className="color-red-600 h-12 w-12 mt-[-4px]" />}
+                title="Excluir Veículo"
+                size="lg"
+                transparent={true}
+            >
+                {selectedVehicle && (
+                    <VehicleForm
+                        mode="delete"
                         initialData={selectedVehicle}
                         onSuccess={handleSuccess}
                         onCancel={handleCloseModal}

@@ -5,6 +5,7 @@ export interface Vehicle {
     type: VehicleType;
     year: number;
     color: string;
+    status?: 'ATIVO' | 'INATIVO';
     userId: string;
     createdAt: string;
     updatedAt: string;

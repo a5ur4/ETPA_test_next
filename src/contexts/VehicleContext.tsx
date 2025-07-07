@@ -14,6 +14,7 @@ interface VehicleContextType {
     addVehicle: (vehicleData: CreateVehicleData) => Promise<void>;
     updateVehicle: (vehicleData: Vehicle) => Promise<void>;
     deleteVehicle: (id: string) => Promise<void>;
+    patchVehicleStatus: (id: string, status: 'ATIVO' | 'INATIVO') => Promise<void>;
     clearError: () => void;
 }
 
@@ -108,6 +109,21 @@ export const VehicleProvider = ({ children }: VehicleProviderProps) => {
         }
     };
 
+    const patchVehicleStatus = async (id: string, status: 'ATIVO' | 'INATIVO') => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const updatedVehicle = await vehicleService.patchVehicleStatus(id, status);
+            setVehicles((prev) => prev.map((v) => v.id === id ? updatedVehicle : v));
+        } catch (error: any) {
+            console.error('Error updating vehicle status:', error);
+            setError(error.message || 'Failed to update vehicle status');
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <VehicleContext.Provider
             value={{ 
@@ -119,6 +135,7 @@ export const VehicleProvider = ({ children }: VehicleProviderProps) => {
                 addVehicle, 
                 updateVehicle, 
                 deleteVehicle, 
+                patchVehicleStatus,
                 clearError 
             }}
         >

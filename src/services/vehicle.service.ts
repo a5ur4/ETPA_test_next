@@ -41,7 +41,7 @@ export const vehicleService = {
         }
     },
 
-    async patchVehicleStatus(id: string, status: 'ACTIVE' | 'INACTIVE'): Promise<Vehicle> {
+    async patchVehicleStatus(id: string, status: 'ATIVO' | 'INATIVO'): Promise<Vehicle> {
         try {
             const response = await api.patch<ApiResponse<Vehicle>>(`/vehicles/${id}/status`, { status });
             if (!response.data.success) {
