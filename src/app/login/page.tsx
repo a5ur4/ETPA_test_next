@@ -9,6 +9,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { GoImage } from 'react-icons/go';
+import { FaUserPlus } from 'react-icons/fa';
+import { Modal } from '@/app/components/modal';
+import { RegisterForm } from '@/app/components/registerForm';
 
 import logoEPTA from '@/assets/logo_EPTA.png';
 
@@ -18,6 +21,7 @@ const LoginPage = () => {
     const { isAuthenticated, isLoading: authLoading } = useRedirectIfAuthenticated();
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm<LoginSchema>({
         resolver: zodResolver(loginSchema)
     });
@@ -37,6 +41,18 @@ const LoginPage = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleOpenRegisterModal = () => {
+        setIsRegisterModalOpen(true);
+    };
+
+    const handleCloseRegisterModal = () => {
+        setIsRegisterModalOpen(false);
+    };
+
+    const handleRegisterSuccess = () => {
+        setIsRegisterModalOpen(false);
     };
 
     if (authLoading) {
@@ -63,7 +79,7 @@ const LoginPage = () => {
 
     return (
         <main className="flex items-center justify-center min-h-screen bg-white">
-            <div className="flex w-full max-w-4xl bg-gray-50 rounded-4xl overflow-hidden h-152">
+            <div className="flex w-full max-w-4xl bg-gray-100 rounded-4xl overflow-hidden h-152">
                 {/* Lado do Formulário */}
                 <div className="w-full p-8 lg:w-1/2 flex flex-col justify-center">
                     <Image src={logoEPTA} alt="EPTA Tecnologia" className="mx-auto mb-4 h-10 w-auto" />
@@ -80,7 +96,7 @@ const LoginPage = () => {
                         </div>
                         <div className="mb-6">
                             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
-                                Password
+                                Senha
                             </label>
                             <input {...register("password")} id="password" type="password" placeholder='Digite sua senha'
                                     className="w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_8px_10px_rgba(0,0,0,0.1)] border border-gray-400" />
@@ -93,7 +109,13 @@ const LoginPage = () => {
                         </button>
                     </form>
                     <p className="mt-4 text-center text-gray-800 text-sm mt-25 font-medium">
-                        Não tem uma conta? <a href="/register" className="text-blue-500 hover:underline">Cadastre-se gratuitamente!</a>
+                        Não tem uma conta? 
+                        <button 
+                            onClick={handleOpenRegisterModal}
+                            className="text-blue-500 hover:underline ml-1 font-medium"
+                        >
+                            Cadastre-se gratuitamente!
+                        </button>
                     </p>
                 </div>
 
@@ -104,6 +126,21 @@ const LoginPage = () => {
                     </span>
                 </div>
             </div>
+
+            {/* Modal de Cadastro */}
+            <Modal
+                isOpen={isRegisterModalOpen}
+                onClose={handleCloseRegisterModal}
+                icon={<FaUserPlus className="color-blue-600 h-12 w-12 mt-[-4px]" />}
+                title="Criar Nova Conta"
+                size="lg"
+                transparent={true}
+            >
+                <RegisterForm
+                    onSuccess={handleRegisterSuccess}
+                    onCancel={handleCloseRegisterModal}
+                />
+            </Modal>
         </main>
     )
 

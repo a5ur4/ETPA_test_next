@@ -1,10 +1,20 @@
 import { api } from './api';
 import { setCookie, destroyCookie } from 'nookies';
 import { LoginSchema } from '@/schemas/login.schema';
+import { RegisterSchema } from '@/schemas/register.schema';
 import { handleApiError } from '@/utils/errorHandler';
 import { User } from '@/types/user';
 
 interface LoginApiResponse {
+    success: boolean;
+    message: string;
+    data: {
+        user: User;
+        token: string;
+    };
+}
+
+interface RegisterApiResponse {
     success: boolean;
     message: string;
     data: {
@@ -24,6 +34,39 @@ interface GetUserApiResponse {
 }
 
 export const authService = {
+    async register(userData: Omit<RegisterSchema, 'confirmPassword'>): Promise<AuthResponse> {
+        try {
+            console.log('AuthService: Making register request');
+            const response = await api.post<RegisterApiResponse>('/auth/register', userData);
+            console.log('AuthService: Register response received', response.data);
+            
+            if (response.data.success !== undefined && !response.data.success) {
+                throw new Error(response.data.message || 'Registration failed');
+            }
+
+            const { token, user } = response.data.data;
+            console.log('AuthService: Extracted token and user', { userId: user.id, email: user.email });
+
+            setCookie(null, 'token', token, {
+                maxAge: 30 * 24 * 60 * 60, // 30 dias
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+                httpOnly: false,
+            });
+
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            console.log('AuthService: Token saved and authorization header set');
+
+            return { token, user };
+        } catch (error: any) {
+            console.error('AuthService: Register error', error);
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+            throw handleApiError(error);
+        }
+    },
+
     async login(credentials: LoginSchema): Promise<AuthResponse> {
         try {
             console.log('AuthService: Making login request');

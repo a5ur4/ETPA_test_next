@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/auth.service';
+import { RegisterSchema } from '@/schemas/register.schema';
 import { parseCookies, destroyCookie } from 'nookies';
 import { api } from '@/services/api';
 import { User } from '@/types/user';
@@ -12,6 +13,7 @@ interface AuthContextType {
     isLoading: boolean;
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
+    register: (userData: Omit<RegisterSchema, 'confirmPassword'>) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -73,6 +75,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
     };
 
+    const register = async (userData: Omit<RegisterSchema, 'confirmPassword'>) => {
+        try {
+            console.log('AuthContext: Starting registration process');
+            setIsLoading(true);
+            const authResponse = await authService.register(userData);
+            console.log('AuthContext: Registration successful, setting user');
+            setUser(authResponse.user);
+            console.log('AuthContext: User state updated');
+        } catch (error) {
+            console.error('AuthContext: Registration failed', error);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const logout = async () => {
         try {
             await authService.logout();
@@ -91,6 +109,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 isLoading,
                 isAuthenticated,
                 login,
+                register,
                 logout,
             }}
         >

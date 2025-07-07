@@ -168,14 +168,14 @@ export const VehicleForm = ({
             )}
 
             <form onSubmit={isDeleting ? undefined : handleSubmit(onSubmit)} className="space-y-4">
-            {/* Error Display */}
+            {/* Exibição de Erro */}
             {error && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3">
                     <p className="text-red-700 text-sm">{error}</p>
                 </div>
             )}
 
-            {/* Vehicle Name */}
+            {/* Nome do Veículo */}
             <div>
                 <label htmlFor="name" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
                     Nome do Veículo
@@ -195,7 +195,7 @@ export const VehicleForm = ({
                 )}
             </div>
 
-            {/* Plate Number */}
+            {/* Número da Placa */}
             <div>
                 <label htmlFor="plateNumber" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
                     Placa
@@ -216,7 +216,7 @@ export const VehicleForm = ({
                 )}
             </div>
 
-            {/* Vehicle Type */}
+            {/* Tipo do Veículo */}
             <div>
                 <label htmlFor="type" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
                     Tipo de Veículo
@@ -240,7 +240,7 @@ export const VehicleForm = ({
                 )}
             </div>
 
-            {/* Year */}
+            {/* Ano */}
             <div>
                 <label htmlFor="year" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
                     Ano
@@ -261,7 +261,7 @@ export const VehicleForm = ({
                 )}
             </div>
 
-            {/* Color */}
+            {/* Cor */}
             <div>
                 <label htmlFor="color" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
                     Cor
@@ -281,7 +281,7 @@ export const VehicleForm = ({
                 )}
             </div>
 
-            {/* Form Actions */}
+            {/* Ações do Formulário */}
             {!isFormReadOnly && (
                 <div className="flex justify-center mb-2">
                     <button
@@ -297,7 +297,7 @@ export const VehicleForm = ({
                 </div>
             )}
 
-            {/* Delete Actions */}
+            {/* Ações de Exclusão */}
             {isDeleting && (
                 <div className="flex gap-3 justify-center mb-2">
                     <button
@@ -322,7 +322,7 @@ export const VehicleForm = ({
                 </div>
             )}
 
-            {/* View Mode Close Button */}
+            {/* Botão de fechar do modo exclusão */}
             {mode === 'view' && (
                 <div className="flex justify-end pt-4">
                     <button
