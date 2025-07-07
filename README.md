@@ -1,36 +1,355 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚗 Sistema de Gerenciamento de Veículos - EPTA
 
-## Getting Started
+Um sistema moderno e completo para gerenciamento de veículos desenvolvido com Next.js 15, TypeScript e Tailwind CSS.
 
-First, run the development server:
+**Teste Técnico - Desenvolvido por:** [Pedro Bastos](https://github.com/a5ur4)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 📋 Índice
+
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Como Usar](#como-usar)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Componentes Principais](#componentes-principais)
+- [Contextos e Estado](#contextos-e-estado)
+- [Schemas e Validação](#schemas-e-validação)
+- [Serviços e API](#serviços-e-api)
+- [Estilização](#estilização)
+- [Scripts Disponíveis](#scripts-disponíveis)
+- [Contribuição](#contribuição)
+- [Licença](#licença)
+
+
+## 🎯 Sobre o Projeto
+
+Um sistema completo para gerenciamento de frotas, desenvolvido como solução para o teste técnico da EPTA. O projeto demonstra uma arquitetura moderna, com foco em performance, manutenibilidade e experiência de usuário.
+
+### 🌟 Destaques
+
+- **Interface Moderna**: Design limpo e responsivo usando Tailwind CSS
+- **Tipagem Forte**: Desenvolvido em TypeScript para maior segurança e manutenibilidade
+- **Validação Robusta**: Validação de formulários com Zod e React Hook Form
+- **Autenticação Segura**: Sistema completo de login e registro com JWT
+- **Experiência do Usuário**: Modais dinâmicos, feedback visual e navegação fluida
+- **Fonte Otimizada**: Uso da fonte Poppins otimizada pelo Next.js
+
+## ⚡ Funcionalidades
+
+### 🔐 Autenticação
+- **Login de usuário** com validação de email e senha
+- **Registro de novos usuários** via modal
+- **Logout seguro** com limpeza de tokens
+- **Proteção de rotas** para usuários não autenticados
+- **Redirecionamento automático** após autenticação
+
+### 🚙 Gerenciamento de Veículos
+- **Listagem de veículos** em tabela responsiva e estilizada
+- **Cadastro de novos veículos** com validação completa
+- **Visualização de detalhes** em modal dedicado
+- **Edição de informações** de veículos existentes
+- **Exclusão de veículos** com modal de confirmação
+- **Alteração de status** (Ativo/Inativo) dos veículos
+- **Suporte a múltiplos tipos**: Carro, Moto, Caminhão, Ônibus, Van
+
+### 🎨 Interface e Navegação
+- **Sidebar retrátil** com contexto persistente
+- **Design responsivo** para desktop e mobile
+- **Modais com fundo transparente** para melhor UX
+- **Feedback visual** com estados de carregamento
+- **Tratamento de erros** com mensagens amigáveis
+- **Navegação por teclado** (ESC para fechar modais)
+
+## 🛠 Tecnologias Utilizadas
+
+### Frontend
+- **[Next.js 15](https://nextjs.org/)** - Framework React com App Router
+- **[React 19](https://react.dev/)** - Biblioteca para interfaces de usuário
+- **[TypeScript 5](https://www.typescriptlang.org/)** - Superset JavaScript com tipagem estática
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Framework CSS utilitário
+
+### Gerenciamento de Estado
+- **[React Context API](https://react.dev/reference/react/createContext)** - Para estado global
+- **Custom Hooks** - Para lógica reutilizável
+
+### Validação e Formulários
+- **[React Hook Form](https://react-hook-form.com/)** - Gerenciamento de formulários performático
+- **[Zod](https://zod.dev/)** - Validação de schema TypeScript-first
+- **[@hookform/resolvers](https://github.com/react-hook-form/resolvers)** - Integração Zod + React Hook Form
+
+### HTTP e Autenticação
+- **[Axios](https://axios-http.com/)** - Cliente HTTP
+- **[Nookies](https://github.com/maticzav/nookies)** - Gerenciamento de cookies
+
+### Ícones e UI
+- **[React Icons](https://react-icons.github.io/react-icons/)** - Biblioteca de ícones
+- **[Lucide React](https://lucide.dev/)** - Ícones modernos e minimalistas
+
+## 📋 Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado:
+
+- **Node.js** (versão 18.17 ou superior)
+- **npm** ou **yarn** ou **pnpm**
+- **Git** para versionamento
+
+## 🚀 Instalação
+
+1. **Clone o repositório**
+   ```bash
+   git clone <url-do-repositorio>
+   cd epta_test
+   ```
+
+2. **Instale as dependências**
+   ```bash
+   npm install
+   # ou
+   yarn install
+   # ou
+   pnpm install
+   ```
+
+3. **Configure as variáveis de ambiente**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edite o arquivo `.env.local` com suas configurações:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:3001
+   ```
+
+4. **Execute o servidor de desenvolvimento**
+   ```bash
+   npm run dev
+   ```
+
+5. **Acesse a aplicação**
+   
+   Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
+
+## 💡 Como Usar
+
+### 1. Primeira Utilização
+
+1. **Acesse a página de login**
+2. **Clique em "Cadastre-se gratuitamente!"** para criar uma conta
+3. **Preencha o formulário de registro** no modal que abrir
+4. **Faça login** com suas credenciais
+
+### 2. Gerenciando Veículos
+
+#### Adicionar Novo Veículo
+1. No dashboard, clique em **"Adicionar Veículo"**
+2. Preencha o formulário com:
+   - Nome do veículo
+   - Placa (formato brasileiro)
+   - Tipo (Carro, Moto, Caminhão, Ônibus, Van)
+   - Ano de fabricação
+   - Cor
+3. Clique em **"Cadastrar Veículo"**
+
+#### Visualizar Detalhes
+1. Na lista de veículos, clique no ícone de **visualização** (arquivo)
+2. O modal mostrará todas as informações do veículo
+
+#### Editar Veículo
+1. Clique no ícone de **edição** (lápis)
+2. Modifique os campos desejados
+3. Clique em **"Atualizar Veículo"**
+
+#### Alterar Status
+1. Clique no ícone de **configurações** (engrenagem)
+2. Escolha entre **"Ativar"** ou **"Desativar"**
+
+#### Excluir Veículo
+1. Clique no ícone de **lixeira** (vermelho)
+2. Confirme a exclusão no modal de confirmação
+
+### 3. Navegação
+
+- **Sidebar**: Clique no ícone de menu para retrair/expandir
+- **Modais**: Pressione **ESC** ou clique fora para fechar
+- **Logout**: Use o menu do usuário no canto superior direito
+
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── app/                          # App Router do Next.js
+│   ├── components/              # Componentes reutilizáveis
+│   │   ├── dashboard/          # Componentes específicos do dashboard
+│   │   │   ├── sidebar.tsx     # Barra lateral retrátil
+│   │   │   ├── statusTotal.tsx # Estatísticas dos veículos
+│   │   │   └── userMenu.tsx    # Menu do usuário
+│   │   ├── modal.tsx           # Componente modal reutilizável
+│   │   ├── vehicleForm.tsx     # Formulário de veículos
+│   │   ├── vehicleList.tsx     # Lista/tabela de veículos
+│   │   ├── vehicleDetails.tsx  # Detalhes do veículo
+│   │   └── registerForm.tsx    # Formulário de registro
+│   ├── dashboard/              # Página principal do sistema
+│   ├── login/                  # Página de autenticação
+│   ├── globals.css            # Estilos globais e Tailwind
+│   ├── layout.tsx             # Layout raiz da aplicação
+│   └── page.tsx               # Página inicial
+├── assets/                     # Recursos estáticos
+│   └── logo_EPTA.png          # Logo da empresa
+├── contexts/                   # Contextos React
+│   ├── AuthContext.tsx        # Contexto de autenticação
+│   ├── VehicleContext.tsx     # Contexto de veículos
+│   └── SidebarContext.tsx     # Contexto da sidebar
+├── hooks/                      # Custom hooks
+│   ├── useAuth.ts             # Hook de autenticação
+│   └── vehicle.ts             # Hook de veículos
+├── schemas/                    # Schemas de validação Zod
+│   ├── login.schema.ts        # Validação de login
+│   ├── register.schema.ts     # Validação de registro
+│   └── vehicle.schema.ts      # Validação de veículos
+├── services/                   # Serviços de API
+│   ├── api.ts                 # Configuração do Axios
+│   ├── auth.service.ts        # Serviços de autenticação
+│   └── vehicle.service.ts     # Serviços de veículos
+├── types/                      # Definições de tipos TypeScript
+│   ├── user.ts                # Tipos do usuário
+│   └── vehicle.ts             # Tipos de veículos
+└── utils/                      # Utilitários
+    └── errorHandler.ts        # Tratamento de erros
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧩 Componentes Principais
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Modal (`modal.tsx`)
+Componente reutilizável para modais com:
+- Fundo transparente
+- Fechamento por ESC ou clique fora
+- Ícone e título personalizáveis
+- Tamanhos responsivos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### VehicleForm (`vehicleForm.tsx`)
+Formulário multimodo para:
+- **Criar** novos veículos
+- **Editar** veículos existentes
+- **Visualizar** detalhes (modo somente leitura)
+- **Excluir** com confirmação
+- **Alterar status** do veículo
 
-## Learn More
+### VehicleList (`vehicleList.tsx`)
+Lista responsiva com:
+- Tabela estilizada com linhas alternadas
+- Botões de ação por veículo
+- Integração com modais
+- Estado vazio amigável
 
-To learn more about Next.js, take a look at the following resources:
+### Sidebar (`sidebar.tsx`)
+Barra lateral com:
+- Estado retrátil persistente
+- Navegação principal
+- Logo responsivo
+- Tooltips no estado recolhido
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔄 Contextos e Estado
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### AuthContext
+Gerencia autenticação global:
+- Estado do usuário atual
+- Funções de login/register/logout
+- Verificação de autenticação
+- Redirecionamentos automáticos
 
-## Deploy on Vercel
+### VehicleContext
+Gerencia estado dos veículos:
+- Lista de veículos do usuário
+- Operações CRUD completas
+- Estados de carregamento e erro
+- Sincronização com API
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### SidebarContext
+Controla estado da sidebar:
+- Estado retraído/expandido
+- Largura dinâmica
+- Persistência entre navegações
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ✅ Schemas e Validação
+
+### LoginSchema
+```typescript
+{
+  email: string (email válido),
+  password: string (mínimo 6 caracteres)
+}
+```
+
+### RegisterSchema
+```typescript
+{
+  name: string (2-100 caracteres),
+  email: string (email válido),
+  password: string (6-100 caracteres),
+  confirmPassword: string (deve coincidir)
+}
+```
+
+### VehicleSchema
+```typescript
+{
+  name: string (2-100 caracteres),
+  plateNumber: string (formato brasileiro),
+  type: VehicleType (enum),
+  year: number (1886-atual),
+  color: string (2-50 caracteres)
+}
+```
+
+## 🌐 Serviços e API
+
+### AuthService
+- `login()` - Autenticação de usuário
+- `register()` - Registro de novos usuários
+- `logout()` - Logout e limpeza de sessão
+- `getCurrentUser()` - Obter usuário atual
+
+### VehicleService
+- `createVehicle()` - Criar novo veículo
+- `updateVehicle()` - Atualizar veículo existente
+- `deleteVehicle()` - Excluir veículo
+- `patchVehicleStatus()` - Alterar status
+- `getAllVehicles()` - Listar todos os veículos
+- `getVehicleById()` - Obter veículo específico
+- `getUserVehicles()` - Veículos do usuário
+
+## 🎨 Estilização
+
+### Tailwind CSS
+- **Fonte**: Poppins otimizada pelo Next.js
+- **Cores**: Paleta azul como cor primária
+- **Responsividade**: Mobile-first approach
+- **Componentes**: Classes utilitárias personalizadas
+
+### Elementos de Design
+- **Sombras**: Consistentes em botões e modais
+- **Bordas**: Cantos arredondados padrão
+- **Espaçamento**: Sistema de grid harmonioso
+- **Estados**: Hover, focus e disabled bem definidos
+
+## 📜 Scripts Disponíveis
+
+```bash
+# Desenvolvimento com Turbopack
+npm run dev
+
+# Build para produção
+npm run build
+
+# Executar versão de produção
+npm run start
+
+# Linting do código
+npm run lint
+```
+
+## 📄 Licença
+
+Este projeto foi desenvolvido como parte de um teste técnico.
