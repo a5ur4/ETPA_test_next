@@ -47,6 +47,15 @@ export const UserMenu = () => {
                     disabled={isLoading}
                 >
                     <RxAvatar className="w-8 h-8 text-gray-500" />
+                    {user?.name ? (
+                        <span className="text-sm font-medium text-gray-700">
+                            {user.name}
+                        </span>
+                    ) : (
+                        <span className="text-sm font-medium text-gray-700">
+                            Usuário Desconhecido
+                        </span>
+                    )}
                     {isOpen ? (
                         <IoIosArrowUp className="w-4 h-4 text-gray-500" />
                     ) : (

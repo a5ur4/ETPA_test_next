@@ -1,0 +1,231 @@
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useVehicle } from '@/contexts/VehicleContext';
+import { CreateVehicleData, VehicleType, Vehicle } from '@/types/vehicle';
+import { vehicleSchema } from '@/schemas/vehicle.schema';
+
+interface VehicleFormProps {
+    onSuccess?: () => void;
+    onCancel?: () => void;
+    mode?: 'create' | 'edit' | 'view';
+    initialData?: Vehicle;
+}
+
+export const VehicleForm = ({ 
+    onSuccess, 
+    onCancel, 
+    mode = 'create',
+    initialData 
+}: VehicleFormProps) => {
+    const { addVehicle, updateVehicle, isLoading, error, clearError } = useVehicle();
+    
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting }
+    } = useForm<CreateVehicleData>({
+        resolver: zodResolver(vehicleSchema),
+        defaultValues: initialData ? {
+            name: initialData.name,
+            plateNumber: initialData.plateNumber,
+            type: initialData.type,
+            year: initialData.year,
+            color: initialData.color,
+        } : {
+            name: '',
+            plateNumber: '',
+            type: VehicleType.CARRO,
+            year: new Date().getFullYear(),
+            color: '',
+        }
+    });
+
+    const isReadOnly = mode === 'view';
+    const isEditing = mode === 'edit';
+
+    const onSubmit = async (data: CreateVehicleData) => {
+        clearError();
+        
+        try {
+            if (isEditing && initialData) {
+                await updateVehicle({ ...initialData, ...data });
+            } else {
+                await addVehicle(data);
+            }
+            onSuccess?.();
+        } catch (error) {
+            console.error('Failed to save vehicle:', error);
+        }
+    };
+
+    const handleCancel = () => {
+        reset();
+        clearError();
+        onCancel?.();
+    };
+
+    const getTitle = () => {
+        switch (mode) {
+            case 'create': return 'Cadastrar Veículo';
+            case 'edit': return 'Editar Veículo';
+            case 'view': return 'Detalhes do Veículo';
+            default: return 'Veículo';
+        }
+    };
+
+    const getSubmitButtonText = () => {
+        if (isSubmitting || isLoading) {
+            return isEditing ? 'Atualizando...' : 'Cadastrando...';
+        }
+        return isEditing ? 'Atualizar Veículo' : 'Cadastrar Veículo';
+    };
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Error Display */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-700 text-sm">{error}</p>
+                </div>
+            )}
+
+            {/* Vehicle Name */}
+            <div>
+                <label htmlFor="name" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
+                    Nome do Veículo
+                </label>
+                <input
+                    type="text"
+                    id="name"
+                    {...register('name')}
+                    disabled={isReadOnly}
+                    className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
+                        errors.name ? 'border-red-500' : 'border-gray-300'
+                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={isReadOnly ? '' : 'Ex: Honda Civic'}
+                />
+                {errors.name && (
+                    <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                )}
+            </div>
+
+            {/* Plate Number */}
+            <div>
+                <label htmlFor="plateNumber" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
+                    Placa
+                </label>
+                <input
+                    type="text"
+                    id="plateNumber"
+                    {...register('plateNumber')}
+                    disabled={isReadOnly}
+                    className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
+                        errors.plateNumber ? 'border-red-500' : 'border-gray-300'
+                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={isReadOnly ? '' : 'Ex: ABC1234'}
+                    maxLength={7}
+                />
+                {errors.plateNumber && (
+                    <p className="text-red-500 text-xs mt-1">{errors.plateNumber.message}</p>
+                )}
+            </div>
+
+            {/* Vehicle Type */}
+            <div>
+                <label htmlFor="type" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
+                    Tipo de Veículo
+                </label>
+                <select
+                    id="type"
+                    {...register('type')}
+                    disabled={isReadOnly}
+                    className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
+                        errors.type ? 'border-red-500' : 'border-gray-300'
+                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                >
+                    <option value={VehicleType.CARRO}>Carro</option>
+                    <option value={VehicleType.MOTO}>Moto</option>
+                    <option value={VehicleType.CAMINHAO}>Caminhão</option>
+                    <option value={VehicleType.ONIBUS}>Ônibus</option>
+                    <option value={VehicleType.VAN}>Van</option>
+                </select>
+                {errors.type && (
+                    <p className="text-red-500 text-xs mt-1">{errors.type.message}</p>
+                )}
+            </div>
+
+            {/* Year */}
+            <div>
+                <label htmlFor="year" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
+                    Ano
+                </label>
+                <input
+                    type="number"
+                    id="year"
+                    {...register('year', { valueAsNumber: true })}
+                    disabled={isReadOnly}
+                    className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
+                        errors.year ? 'border-red-500' : 'border-gray-300'
+                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    min={1886}
+                    max={new Date().getFullYear()}
+                />
+                {errors.year && (
+                    <p className="text-red-500 text-xs mt-1">{errors.year.message}</p>
+                )}
+            </div>
+
+            {/* Color */}
+            <div>
+                <label htmlFor="color" className="block text-gray-900 text-base font-semibold mb-1 ml-1">
+                    Cor
+                </label>
+                <input
+                    type="text"
+                    id="color"
+                    {...register('color')}
+                    disabled={isReadOnly}
+                    className={`w-full h-11 px-3 py-2 text-gray-900 rounded-xl focus:outline-none focus:ring focus:ring-blue-300 shadow-[0_4px_6px_rgba(0,0,0,0.1)] border border-gray-400 ${
+                        errors.color ? 'border-red-500' : 'border-gray-300'
+                    } ${isReadOnly ? 'bg-gray-50 cursor-not-allowed' : ''}`}
+                    placeholder={isReadOnly ? '' : 'Ex: Branco'}
+                />
+                {errors.color && (
+                    <p className="text-red-500 text-xs mt-1">{errors.color.message}</p>
+                )}
+            </div>
+
+            {/* Form Actions */}
+            {!isReadOnly && (
+                <div className="flex justify-center mb-2">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting || isLoading}
+                        className="w-full mt-2 h-11 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-bold rounded-xl focus:outline-none transition-colors shadow-[0_4px_6px_rgba(0,0,0,0.3)]"
+                    >
+                        {(isSubmitting || isLoading) && (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        )}
+                        <span>{getSubmitButtonText()}</span>
+                    </button>
+                </div>
+            )}
+
+            {/* View Mode Close Button */}
+            {isReadOnly && (
+                <div className="flex justify-end pt-4">
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                    >
+                        Fechar
+                    </button>
+                </div>
+            )}
+        </form>
+    );
+};

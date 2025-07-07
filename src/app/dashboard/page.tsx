@@ -1,25 +1,33 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Sidebar } from "../components/dashboard/sidebar";
-import { UserMenu } from "../components/dashboard/userMenu";
+import { Sidebar } from "../components/sidebar";
+import { UserMenu } from "../components/userMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVehicle } from "@/contexts/VehicleContext";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { authService } from "@/services/auth.service";
 import { vehicleService } from "@/services/vehicle.service";
 import { User } from "@/types/user";
 import { Vehicle } from "@/types/vehicle";
-import { StatusTotal } from "../components/dashboard/statusTotal";
+import { StatusTotal } from "../components/statusTotal";
 import { IoFileTray } from "react-icons/io5";
 import { FaCheck, FaUser } from "react-icons/fa";
 import { ImSpinner11 } from "react-icons/im";
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { Modal } from "../components/modal";
+import { VehicleForm } from "../components/vehicleForm";
+import { VehicleList } from "../components/vehicleList";
+import { LuCar } from "react-icons/lu";
 
 const DashboardPage = () => {
     const { user: contextUser, isLoading } = useAuth();
     const { vehicles, isLoading: isVehiclesLoading, error: vehiclesError, fetchVehicles } = useVehicle();
+    const { sidebarWidth } = useSidebar();
     const [localUser, setLocalUser] = useState<User | null>(null);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [userVehicles, setUserVehicles] = useState<Vehicle[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchUserVehicles = async (userId: string) => {
         try {
@@ -73,14 +81,33 @@ const DashboardPage = () => {
         }
     };
 
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleVehicleCreated = () => {
+        setIsModalOpen(false);
+        // Atualizar a lista de veículos do usuário após criação bem-sucedida
+        if (user?.id) {
+            fetchUserVehicles(user.id);
+        }
+    };
+
     return (
         <div className="flex h-screen">
             <Sidebar />
-            <main className="flex-grow ml-8">
+            <main 
+                className="flex-grow transition-all duration-300 ease-in-out"
+                style={{ marginLeft: `${sidebarWidth}px` }}
+            >
                 <UserMenu />
                 
                 <div className="mt-16">
-                    {/* Loading */}
+                    {/* Carregando */}
                     {(isLoading || (!user && !fetchError)) && (
                         <div className="flex items-center space-x-2">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -88,7 +115,7 @@ const DashboardPage = () => {
                         </div>
                     )}
 
-                    {/* Error */}
+                    {/* Erro */}
                     {fetchError && !user && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                             <p className="text-red-700">Erro ao carregar dados: {fetchError}</p>
@@ -108,7 +135,7 @@ const DashboardPage = () => {
                         </div>
                     )}
 
-                    {/* User Data Display */}
+                    {/* Exibição de Dados do Usuário */}
                     {user && (
                         <div className="space-y-4 p-5">
                             <div className="flex gap-5 items-center">
@@ -116,20 +143,10 @@ const DashboardPage = () => {
                                     <h1 className="text-4xl font-medium text-gray-800">
                                         Olá, {user.name},
                                     </h1>
-                                    <h3 className="text-xl font-light text-gray-600">
+                                    <h3 className="text-xl font-light text-gray-600 mt-4">
                                         Cadastre e gerencie seus veículos.
                                     </h3>
                                 </div>
-                                <button
-                                    onClick={handleRefresh}
-                                    disabled={isVehiclesLoading}
-                                    className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                                >
-                                    <ImSpinner11 className="h-5 w-5 hover:animate-spin" />
-                                    {isVehiclesLoading && (
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    )}
-                                </button>
                             </div>
 
                             {/* Estatísticas dos Veículos */}
@@ -139,7 +156,7 @@ const DashboardPage = () => {
                                     <p className="text-gray-600">Carregando estatísticas dos veículos...</p>
                                 </div>
                             ) : (
-                                <div className="flex gap-10 mt-8 flex-wrap">
+                                <div className="flex gap-10 mt-10 flex-wrap">
                                     <StatusTotal
                                         icon={<IoFileTray className="text-2xl text-blue-500 h-8 w-8" />}
                                         name="Total"
@@ -157,10 +174,55 @@ const DashboardPage = () => {
                                     />
                                 </div>
                             )}
+                            {/* Adicionar Veículo */}
+                            <div className="flex items-center mt-8 space-x-4">
+                            <button 
+                                onClick={handleOpenModal}
+                                className="flex items-center py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                            >
+                                <IoIosAddCircleOutline className="inline-block mr-2 h-5 w-5" />
+                                <span className="font-semibold text-sm">
+                                    Cadastrar Veículo
+                                </span>
+                            </button>
+                            <button
+                                onClick={handleRefresh}
+                                disabled={isVehiclesLoading}
+                                className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                            >
+                                <ImSpinner11 className="h-3 w-3 hover:animate-spin" />
+                                {isVehiclesLoading && (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                )}
+                            </button>
+                            </div>
+
+                            {/* Lista de Veículos */}
+                            <div className="mt-8">
+                                <VehicleList 
+                                    vehicles={userVehicles}
+                                    onRefresh={() => user?.id && fetchUserVehicles(user.id)}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
             </main>
+
+            {/* Modal para Formulário de Veículo */}
+            <Modal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                icon={<LuCar className="color-gray-800 h-12 w-12 mt-[-4px]" />}
+                title="Criar Veículo"
+                size="lg"
+                transparent={true}
+            >
+                <VehicleForm
+                    onSuccess={handleVehicleCreated}
+                    onCancel={handleCloseModal}
+                />
+            </Modal>
         </div>
     );
 };
