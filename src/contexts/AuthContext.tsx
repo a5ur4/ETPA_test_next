@@ -2,17 +2,10 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService } from '@/services/auth';
+import { authService } from '@/services/auth.service';
 import { parseCookies, destroyCookie } from 'nookies';
 import { api } from '@/services/api';
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import { User } from '@/types/user';
 
 interface AuthContextType {
     user: User | null;

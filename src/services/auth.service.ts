@@ -2,14 +2,7 @@ import { api } from './api';
 import { setCookie, destroyCookie } from 'nookies';
 import { LoginSchema } from '@/schemas/login.schema';
 import { handleApiError } from '@/utils/errorHandler';
-
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    createdAt: string;
-    updatedAt: string;
-}
+import { User } from '@/types/user';
 
 interface LoginApiResponse {
     success: boolean;
