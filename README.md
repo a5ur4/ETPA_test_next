@@ -99,7 +99,7 @@ Antes de começar, certifique-se de ter instalado:
 
 1. **Clone o repositório**
    ```bash
-   git clone <url-do-repositorio>
+   git clone https://github.com/a5ur4/ETPA_test_next
    cd epta_test
    ```
 
