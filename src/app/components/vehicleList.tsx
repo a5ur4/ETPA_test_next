@@ -64,52 +64,19 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
     if (vehicles.length === 0) {
         return (
             <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
                     Seus Veículos (0)
                 </h3>
                 
-                {/* Tabela Vazia */}
-                <div className="overflow-x-auto">
-                    <table className="table-auto">
-                        <thead>
-                            <tr>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Veículo
-                                </th>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Tipo
-                                </th>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Placa
-                                </th>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ano
-                                </th>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Cor
-                                </th>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-3 border-b border-gray-400 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ações
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colSpan={7} className="px-6 py-12 text-center border-b border-gray-400">
-                                    <div className="text-gray-400 text-6xl mb-4">🚗</div>
-                                    <h3 className="text-lg font-medium text-gray-600 mb-2">
-                                        Nenhum veículo encontrado
-                                    </h3>
-                                    <p className="text-gray-500">
-                                        Cadastre seu primeiro veículo usando o botão acima.
-                                    </p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                {/* Empty State Card - Always visible */}
+                <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                    <div className="text-gray-400 text-4xl sm:text-6xl mb-4">🚗</div>
+                    <h3 className="text-lg font-medium text-gray-600 mb-2">
+                        Nenhum veículo encontrado
+                    </h3>
+                    <p className="text-gray-500 text-sm sm:text-base">
+                        Cadastre seu primeiro veículo usando o botão acima.
+                    </p>
                 </div>
             </div>
         );
@@ -117,35 +84,117 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
                 Seus Veículos ({vehicles.length})
             </h3>
             
-            {/* Container da Tabela - Responsivo */}
-            <div className="overflow-x-auto">
+            {/* Mobile Card View - Hidden on md+ */}
+            <div className="md:hidden space-y-4">
+                {vehicles.map((vehicle) => (
+                    <div key={vehicle.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                                <h4 className="font-semibold text-gray-900 text-sm">{vehicle.name}</h4>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        {getVehicleTypeLabel(vehicle.type)}
+                                    </span>
+                                    <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                                        vehicle.status === 'ATIVO' 
+                                            ? 'bg-green-100 text-green-800' 
+                                            : 'bg-orange-100 text-orange-800'
+                                    }`}>
+                                        <span className={`w-2 h-2 rounded-full mr-1 ${
+                                            vehicle.status === 'ATIVO' 
+                                                ? 'bg-green-400' 
+                                                : 'bg-orange-400'
+                                        }`}></span>
+                                        {vehicle.status === 'ATIVO' ? 'Ativo' : 'Inativo'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                            <div>
+                                <span className="text-gray-500 block">Placa:</span>
+                                <span className="font-mono font-semibold bg-gray-100 px-2 py-1 rounded text-xs">
+                                    {vehicle.plateNumber}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="text-gray-500 block">Ano:</span>
+                                <span className="text-gray-900">{vehicle.year}</span>
+                            </div>
+                            <div>
+                                <span className="text-gray-500 block">Cor:</span>
+                                <span className="text-gray-900">{vehicle.color}</span>
+                            </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => handleEditVehicle(vehicle)}
+                                className="flex-1 min-w-0 p-2 text-black-600 bg-white shadow-sm hover:border-blue-300 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                                title="Editar"
+                            >
+                                <MdOutlineModeEdit className="w-4 h-4 mr-1" />
+                                <span className="text-xs">Editar</span>
+                            </button>
+                            <button
+                                onClick={() => handleViewVehicle(vehicle)}
+                                className="flex-1 min-w-0 p-2 text-black-600 bg-white shadow-sm hover:border-blue-300 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                                title="Visualizar"
+                            >
+                                <FaBoxArchive className="w-4 h-4 mr-1" />
+                                <span className="text-xs">Ver</span>
+                            </button>
+                            <button
+                                onClick={() => handlePatchStatusVehicle(vehicle)}
+                                className="flex-1 min-w-0 p-2 text-black-600 bg-white shadow-sm hover:border-blue-300 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                                title="Alterar Status"
+                            >
+                                <FaPowerOff className="w-4 h-4 mr-1" />
+                                <span className="text-xs">Status</span>
+                            </button>
+                            <button
+                                onClick={() => handleDeleteVehicle(vehicle)}
+                                className="flex-1 min-w-0 p-2 text-red-600 bg-white shadow-sm hover:border-red-300 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                                title="Excluir"
+                            >
+                                <FaRegTrashCan className="w-4 h-4 mr-1" />
+                                <span className="text-xs">Excluir</span>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop Table View - Hidden on mobile */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="min-w-full">
                     {/* Cabeçalho da Tabela */}
                     <thead>
                         <tr>
-                            <th className="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Veículo
                             </th>
-                            <th className="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Tipo
                             </th>
-                            <th className="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Placa
                             </th>
-                            <th className="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Ano
                             </th>
-                            <th className="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Cor
                             </th>
-                            <th className="px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-left text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Status
                             </th>
-                            <th className="px-6 py-3 border-b border-gray-300 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
+                            <th className="px-4 lg:px-6 py-3 border-b border-gray-300 text-center text-xs font-medium text-gray-800 uppercase tracking-wider">
                                 Ações
                             </th>
                         </tr>
@@ -161,42 +210,42 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
                                 } hover:bg-gray-100 transition-colors`}
                             >
                                 {/* Nome do Veículo */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                     <div className="text-sm font-medium text-gray-900">
                                         {vehicle.name}
                                     </div>
                                 </td>
                                 
                                 {/* Tipo do Veículo */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                                         {getVehicleTypeLabel(vehicle.type)}
                                     </span>
                                 </td>
                                 
                                 {/* Número da Placa */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                     <div className="text-sm text-gray-900 font-mono font-semibold bg-gray-100 p-1 rounded-lg inline-block">
                                         {vehicle.plateNumber}
                                     </div>
                                 </td>
                                 
                                 {/* Ano */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                     <div className="text-sm text-gray-900">
                                         {vehicle.year}
                                     </div>
                                 </td>
                                 
                                 {/* Cor */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                     <div className="text-sm text-gray-900">
                                         {vehicle.color}
                                     </div>
                                 </td>
                                 
                                 {/* Status */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
                                         vehicle.status === 'ATIVO' 
                                             ? 'bg-green-100 text-green-800' 
@@ -213,8 +262,8 @@ export const VehicleList = ({ vehicles, onRefresh }: VehicleListProps) => {
                                 
                                 
                                 {/* Ações */}
-                                <td className="px-6 py-4 whitespace-nowrap border-b border-gray-200 text-center">
-                                    <div className="flex justify-center space-x-2">
+                                <td className="px-4 lg:px-6 py-4 whitespace-nowrap border-b border-gray-200 text-center">
+                                    <div className="flex justify-center space-x-1 lg:space-x-2">
                                         <button
                                             onClick={() => handleEditVehicle(vehicle)}
                                             className="p-2 text-black-600 bg-white shadow-sm hover:border-blue-300 rounded-lg transition-colors border border-gray-200"

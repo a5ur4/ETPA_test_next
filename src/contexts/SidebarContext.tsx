@@ -1,11 +1,12 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface SidebarContextType {
     isCollapsed: boolean;
     toggleSidebar: () => void;
     sidebarWidth: number;
+    isMobile: boolean;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -15,13 +16,41 @@ interface SidebarProviderProps {
 }
 
 export const SidebarProvider = ({ children }: SidebarProviderProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true); // Start collapsed by default
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const mobile = window.innerWidth < 1024; // lg breakpoint
+            setIsMobile(mobile);
+            
+            // On mobile, sidebar starts collapsed (hidden)
+            // On desktop, sidebar starts expanded
+            if (mobile) {
+                setIsCollapsed(true);
+            } else {
+                setIsCollapsed(false);
+            }
+        };
+
+        // Check on mount
+        checkMobile();
+        
+        // Add event listener for window resize
+        window.addEventListener('resize', checkMobile);
+        
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
     };
 
-    const sidebarWidth = isCollapsed ? 76 : 256; // 16 * 4 = 64px, 64 * 4 = 256px (unidades Tailwind)
+    // On mobile, collapsed means hidden (0px), expanded means full sidebar (256px)
+    // On desktop, collapsed means narrow (64px), expanded means full sidebar (256px)
+    const sidebarWidth = isMobile 
+        ? (isCollapsed ? 0 : 256)  // Mobile: hidden or full width
+        : (isCollapsed ? 64 : 256); // Desktop: narrow or full width
 
     return (
         <SidebarContext.Provider
@@ -29,6 +58,7 @@ export const SidebarProvider = ({ children }: SidebarProviderProps) => {
                 isCollapsed,
                 toggleSidebar,
                 sidebarWidth,
+                isMobile,
             }}
         >
             {children}

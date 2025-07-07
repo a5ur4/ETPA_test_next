@@ -15,6 +15,7 @@ import { IoFileTray } from "react-icons/io5";
 import { FaCheck, FaUser } from "react-icons/fa";
 import { ImSpinner11 } from "react-icons/im";
 import { IoIosAddCircleOutline } from "react-icons/io";
+import { HiMenuAlt2 } from "react-icons/hi";
 import { Modal } from "../components/modal";
 import { VehicleForm } from "../components/vehicleForm";
 import { VehicleList } from "../components/vehicleList";
@@ -23,7 +24,7 @@ import { LuCar } from "react-icons/lu";
 const DashboardPage = () => {
     const { user: contextUser, isLoading } = useAuth();
     const { vehicles, isLoading: isVehiclesLoading, error: vehiclesError, fetchVehicles } = useVehicle();
-    const { sidebarWidth } = useSidebar();
+    const { sidebarWidth, toggleSidebar } = useSidebar();
     const [localUser, setLocalUser] = useState<User | null>(null);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [userVehicles, setUserVehicles] = useState<Vehicle[]>([]);
@@ -98,30 +99,41 @@ const DashboardPage = () => {
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen overflow-hidden">
             <Sidebar />
             <main 
-                className="flex-grow transition-all duration-300 ease-in-out"
+                className="flex-grow transition-all duration-300 ease-in-out overflow-y-auto"
                 style={{ marginLeft: `${sidebarWidth}px` }}
             >
+                {/* Mobile Menu Button */}
+                <div className="lg:hidden fixed top-4 left-4 z-30">
+                    <button
+                        onClick={toggleSidebar}
+                        className="bg-white border border-gray-200 rounded-lg p-2 shadow-md hover:shadow-lg transition-shadow duration-200"
+                        title="Abrir menu"
+                    >
+                        <HiMenuAlt2 className="w-5 h-5 text-gray-600" />
+                    </button>
+                </div>
+                
                 <UserMenu />
                 
-                <div className="mt-16">
+                <div className="mt-14 sm:mt-16 px-3 sm:px-6 lg:px-8">
                     {/* Carregando */}
                     {(isLoading || (!user && !fetchError)) && (
-                        <div className="flex items-center space-x-2">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                            <p className="text-gray-600">Carregando dados do usuário...</p>
+                        <div className="flex items-center justify-center space-x-2 py-6 sm:py-8">
+                            <div className="animate-spin rounded-full h-5 w-5 sm:h-6 sm:w-6 border-b-2 border-blue-500"></div>
+                            <p className="text-gray-600 text-sm sm:text-base">Carregando dados do usuário...</p>
                         </div>
                     )}
 
                     {/* Erro */}
                     {fetchError && !user && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                            <p className="text-red-700">Erro ao carregar dados: {fetchError}</p>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4">
+                            <p className="text-red-700 text-sm sm:text-base">Erro ao carregar dados: {fetchError}</p>
                             <button 
                                 onClick={() => window.location.reload()} 
-                                className="mt-2 text-red-600 hover:text-red-800 underline"
+                                className="mt-2 text-red-600 hover:text-red-800 underline text-sm sm:text-base"
                             >
                                 Tentar novamente
                             </button>
@@ -130,20 +142,20 @@ const DashboardPage = () => {
 
                     {/* Error Veículos */}
                     {vehiclesError && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                            <p className="text-yellow-700">Aviso: {vehiclesError}</p>
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4 mb-4">
+                            <p className="text-yellow-700 text-sm sm:text-base">Aviso: {vehiclesError}</p>
                         </div>
                     )}
 
                     {/* Exibição de Dados do Usuário */}
                     {user && (
-                        <div className="space-y-4 p-5">
-                            <div className="flex gap-5 items-center">
-                                <div>
-                                    <h1 className="text-4xl font-medium text-gray-800">
+                        <div className="space-y-4 sm:space-y-6 pb-6 sm:pb-8">
+                            <div className="flex flex-col gap-3 sm:gap-4 items-start">
+                                <div className="w-full">
+                                    <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-medium text-gray-800 leading-tight">
                                         Olá, {user.name},
                                     </h1>
-                                    <h3 className="text-xl font-light text-gray-600 mt-4">
+                                    <h3 className="text-sm sm:text-base lg:text-lg xl:text-xl font-light text-gray-600 mt-1 sm:mt-2 lg:mt-4">
                                         Cadastre e gerencie seus veículos.
                                     </h3>
                                 </div>
@@ -151,54 +163,56 @@ const DashboardPage = () => {
 
                             {/* Estatísticas dos Veículos */}
                             {isVehiclesLoading ? (
-                                <div className="flex items-center space-x-2 mt-8">
+                                <div className="flex items-center justify-center space-x-2 py-4 sm:py-6">
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                    <p className="text-gray-600">Carregando estatísticas dos veículos...</p>
+                                    <p className="text-gray-600 text-sm sm:text-base">Carregando estatísticas dos veículos...</p>
                                 </div>
                             ) : (
-                                <div className="flex gap-10 mt-10 flex-wrap">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 xl:gap-10">
                                     <StatusTotal
-                                        icon={<IoFileTray className="text-2xl text-blue-500 h-8 w-8" />}
+                                        icon={<IoFileTray className="text-blue-500 h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />}
                                         name="Total"
                                         total={totalVehicles.toString()}
                                     />
                                     <StatusTotal
-                                        icon={<FaCheck className="text-2xl text-green-500 h-8 w-8" />}
+                                        icon={<FaCheck className="text-green-500 h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />}
                                         name="Ativos"
                                         total={activeVehicles.toString()}
                                     />
                                     <StatusTotal
-                                        icon={<FaUser className="text-2xl text-orange-500 h-8 w-8" />}
+                                        icon={<FaUser className="text-orange-500 h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8" />}
                                         name="Inativos"
                                         total={inactiveVehicles.toString()}
                                     />
                                 </div>
                             )}
+                            
                             {/* Adicionar Veículo */}
-                            <div className="flex items-center mt-8 space-x-4">
-                            <button 
-                                onClick={handleOpenModal}
-                                className="flex items-center py-2 px-4 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-                            >
-                                <IoIosAddCircleOutline className="inline-block mr-2 h-5 w-5" />
-                                <span className="font-semibold text-sm">
-                                    Cadastrar Veículo
-                                </span>
-                            </button>
-                            <button
-                                onClick={handleRefresh}
-                                disabled={isVehiclesLoading}
-                                className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                            >
-                                <ImSpinner11 className="h-3 w-3 hover:animate-spin" />
-                                {isVehiclesLoading && (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                )}
-                            </button>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                                <button 
+                                    onClick={handleOpenModal}
+                                    className="flex items-center justify-center py-3 px-4 sm:py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors w-full sm:w-auto order-1 sm:order-1"
+                                >
+                                    <IoIosAddCircleOutline className="inline-block mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                                    <span className="font-semibold text-sm">
+                                        Cadastrar Veículo
+                                    </span>
+                                </button>
+                                <button
+                                    onClick={handleRefresh}
+                                    disabled={isVehiclesLoading}
+                                    className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-colors w-full sm:w-auto order-2 sm:order-2"
+                                >
+                                    <ImSpinner11 className="h-3 w-3 hover:animate-spin" />
+                                    {isVehiclesLoading && (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    )}
+                                    <span className="sm:hidden text-sm font-semibold">Atualizar</span>
+                                </button>
                             </div>
 
                             {/* Lista de Veículos */}
-                            <div className="mt-8">
+                            <div className="w-full">
                                 <VehicleList 
                                     vehicles={userVehicles}
                                     onRefresh={() => user?.id && fetchUserVehicles(user.id)}
