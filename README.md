@@ -29,11 +29,13 @@ Um sistema completo para gerenciamento de frotas, desenvolvido como solução pa
 
 ### 🌟 Destaques
 
-- **Interface Moderna**: Design limpo e responsivo usando Tailwind CSS
+- **Interface Totalmente Responsiva**: Design Mobile First que se adapta perfeitamente a todos os dispositivos
+- **Busca e Filtros Avançados**: Sistema de busca em tempo real com filtros inteligentes e paginação
 - **Tipagem Forte**: Desenvolvido em TypeScript para maior segurança e manutenibilidade
 - **Validação Robusta**: Validação de formulários com Zod e React Hook Form
 - **Autenticação Segura**: Sistema completo de login e registro com JWT
 - **Experiência do Usuário**: Modais dinâmicos, feedback visual e navegação fluida
+- **Performance Otimizada**: Paginação, lazy loading e componentes otimizados
 - **Fonte Otimizada**: Uso da fonte Poppins otimizada pelo Next.js
 
 ## ⚡ Funcionalidades
@@ -47,20 +49,34 @@ Um sistema completo para gerenciamento de frotas, desenvolvido como solução pa
 
 ### 🚙 Gerenciamento de Veículos
 - **Listagem de veículos** em tabela responsiva e estilizada
+- **Busca avançada** por nome, placa, cor ou ano
+- **Filtros dinâmicos** por status (Ativo/Inativo) e tipo de veículo
+- **Paginação** com limite de 10 itens por página
+- **Visualização adaptativa** - Cards no mobile, tabela no desktop
 - **Cadastro de novos veículos** com validação completa
 - **Visualização de detalhes** em modal dedicado
 - **Edição de informações** de veículos existentes
 - **Exclusão de veículos** com modal de confirmação
 - **Alteração de status** (Ativo/Inativo) dos veículos
 - **Suporte a múltiplos tipos**: Carro, Moto, Caminhão, Ônibus, Van
+- **Contador dinâmico** de resultados filtrados
 
 ### 🎨 Interface e Navegação
-- **Sidebar retrátil** com contexto persistente
-- **Design responsivo** para desktop e mobile
+- **Sidebar retrátil** com contexto persistente e comportamento responsivo
+- **Design totalmente responsivo** para desktop, tablet e mobile
+- **Menu hamburger** para dispositivos móveis
+- **Overlay de navegação** em telas pequenas
 - **Modais com fundo transparente** para melhor UX
 - **Feedback visual** com estados de carregamento
 - **Tratamento de erros** com mensagens amigáveis
 - **Navegação por teclado** (ESC para fechar modais)
+- **Tooltips informativos** em elementos recolhidos
+
+### 📊 Dashboard e Estatísticas
+- **Cartões de estatísticas** responsivos com ícones
+- **Contadores em tempo real** de veículos totais, ativos e inativos
+- **Interface adaptativa** que se ajusta ao tamanho da tela
+- **Botões de ação** otimizados para diferentes dispositivos
 
 ## 🛠 Tecnologias Utilizadas
 
@@ -152,6 +168,22 @@ Antes de começar, certifique-se de ter instalado:
    - Cor
 3. Clique em **"Cadastrar Veículo"**
 
+#### Buscar e Filtrar Veículos
+1. Use a **barra de busca** para pesquisar por:
+   - Nome do veículo
+   - Número da placa
+   - Cor
+   - Ano de fabricação
+2. **Filtros disponíveis**:
+   - **Status**: Todos, Ativo, Inativo
+   - **Tipo**: Todos, Carro, Moto, Caminhão, Ônibus, Van
+3. **Limpar filtros**: Clique em "Limpar Filtros" quando aplicados
+
+#### Navegar pela Lista
+- **Paginação**: Máximo de 10 veículos por página
+- **Navegação**: Use os botões de página ou setas
+- **Contador**: Visualize quantos veículos correspondem aos filtros
+
 #### Visualizar Detalhes
 1. Na lista de veículos, clique no ícone de **visualização** (arquivo)
 2. O modal mostrará todas as informações do veículo
@@ -237,18 +269,27 @@ Formulário multimodo para:
 - **Alterar status** do veículo
 
 ### VehicleList (`vehicleList.tsx`)
-Lista responsiva com:
-- Tabela estilizada com linhas alternadas
-- Botões de ação por veículo
-- Integração com modais
-- Estado vazio amigável
+Lista responsiva de veículos com:
+- **Busca em tempo real** por múltiplos campos (nome, placa, cor, ano)
+- **Filtros dinâmicos** por status e tipo de veículo
+- **Paginação inteligente** com 10 itens por página
+- **Visualização adaptativa**:
+  - **Mobile**: Cards compactos com informações essenciais
+  - **Desktop**: Tabela completa com todas as colunas
+- **Botões de ação** contextuais para cada veículo
+- **Contador dinâmico** de resultados filtrados
+- **Estado vazio** quando não há resultados
+- **Navegação por páginas** com controles intuitivos
 
 ### Sidebar (`sidebar.tsx`)
-Barra lateral com:
-- Estado retrátil persistente
-- Navegação principal
-- Logo responsivo
-- Tooltips no estado recolhido
+Barra lateral inteligente com:
+- **Comportamento responsivo**:
+  - **Desktop**: Retrátil com ícones ou texto completo
+  - **Mobile**: Overlay com fundo escuro e menu hamburger
+- **Navegação contextual** com indicador de página ativa
+- **Logo adaptativo** que muda conforme o estado (completo/compacto)
+- **Tooltips informativos** quando em modo recolhido
+- **Fechamento automático** no mobile após navegação
 
 ## 🔄 Contextos e Estado
 
@@ -268,9 +309,62 @@ Gerencia estado dos veículos:
 
 ### SidebarContext
 Controla estado da sidebar:
-- Estado retraído/expandido
-- Largura dinâmica
-- Persistência entre navegações
+- **Estado retrátil/expandido** persistente
+- **Detecção de dispositivo móvel** automática
+- **Largura dinâmica** baseada no estado e dispositivo
+- **Comportamento adaptativo** para diferentes telas
+- **Persistência entre navegações** do estado preferido
+
+## 📱 Design Responsivo
+
+O sistema foi desenvolvido com **Mobile First** e oferece uma experiência otimizada em todos os dispositivos:
+
+### 📱 Mobile (< 768px)
+- **Sidebar**: Overlay em tela cheia com menu hamburger
+- **Lista de veículos**: Cards compactos com informações essenciais
+- **Formulários**: Campos em coluna única, botões de tela cheia
+- **Navegação**: Menu de usuário simplificado
+- **Busca e filtros**: Layout vertical para facilitar o uso
+
+### 📟 Tablet (768px - 1024px)
+- **Sidebar**: Comportamento híbrido, pode ser retraída
+- **Lista de veículos**: Grid responsivo de cards
+- **Dashboard**: Layout em 2 colunas para estatísticas
+- **Formulários**: Campos organizados em grid 2x2
+
+### 🖥️ Desktop (> 1024px)
+- **Sidebar**: Modo completo com recolhimento opcional
+- **Lista de veículos**: Tabela completa com todas as colunas
+- **Dashboard**: Layout em 3 colunas para estatísticas
+- **Formulários**: Layout otimizado com campos lado a lado
+- **Tooltips**: Informações adicionais em hover
+
+### ⚡ Funcionalidades Responsivas
+- **Busca inteligente**: Funciona em todos os dispositivos
+- **Paginação adaptativa**: Controles otimizados por tela
+- **Modais responsivos**: Tamanhos que se ajustam ao viewport
+- **Imagens otimizadas**: Next.js Image com lazy loading
+- **Fonte web otimizada**: Poppins carregada via Next.js Fonts
+
+## 🔍 Busca e Filtros Avançados
+
+### Funcionalidades de Busca
+- **Busca em tempo real** sem necessidade de botão
+- **Múltiplos campos**: Nome, placa, cor e ano
+- **Busca insensível a maiúsculas** e acentos
+- **Resultados instantâneos** com debounce otimizado
+
+### Sistema de Filtros
+- **Filtro por status**: Todos, Ativo, Inativo
+- **Filtro por tipo**: Todos os tipos de veículos disponíveis
+- **Combinação de filtros**: Use múltiplos filtros simultaneamente
+- **Limpeza rápida**: Botão para resetar todos os filtros
+
+### Paginação Inteligente
+- **Limite configurável**: 10 itens por página (otimizado para performance)
+- **Navegação intuitiva**: Botões anterior/próximo + números de página
+- **Contador dinâmico**: "Mostrando X de Y resultados"
+- **Reset automático**: Volta à página 1 ao alterar filtros
 
 ## ✅ Schemas e Validação
 

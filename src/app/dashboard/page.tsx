@@ -188,7 +188,7 @@ const DashboardPage = () => {
                             )}
                             
                             {/* Adicionar Veículo */}
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-6 mb-6">
                                 <button 
                                     onClick={handleOpenModal}
                                     className="flex items-center justify-center py-3 px-4 sm:py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors w-full sm:w-auto order-1 sm:order-1"
@@ -201,7 +201,7 @@ const DashboardPage = () => {
                                 <button
                                     onClick={handleRefresh}
                                     disabled={isVehiclesLoading}
-                                    className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-colors w-full sm:w-auto order-2 sm:order-2"
+                                    className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors w-full sm:w-auto order-2 sm:order-2"
                                 >
                                     <ImSpinner11 className="h-3 w-3 hover:animate-spin" />
                                     {isVehiclesLoading && (
